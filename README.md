@@ -1,2 +1,3 @@
-# hooktest
-Change 2
+# Test repo for installable githooks
+
+
