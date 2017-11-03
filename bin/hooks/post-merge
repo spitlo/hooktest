@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Don't edit this file. It's meant to be read by bin/install_hooks and installed in .git/hooks/
+
+payload=$(cat << EOF
+  {
+    "channel": "__CHANNEL__",
+    "username": "__BOT_NAME__",
+    "text": "Hubba! Detected changes to repo.",
+    "icon_emoji": "__BOT_ICON__"
+  }
+EOF
+)
+
+slack_notify() {
+  curl \
+    -X POST \
+    --data-urlencode "payload=$payload" \
+    __WEBHOOK_ENDPOINT__
+}
+
+# Get a list of all changed files
+changed_files="$(git diff-tree -r --name-only --no-commit-id HEAD@{1} HEAD)"
+
+if [ -n "$changed_files" ]; then
+  echo -e "Detected changes in $(wc -l $changed_files) file(s).\n"
+  echo -e "Notifying on Slack.\n"
+  slack_notify
+fi

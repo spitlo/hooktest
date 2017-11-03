@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+TEMPLATE='bin/hooks/post-merge'
+OUTPUT='.git/hooks/post-merge'
+DEFAULT_CHANNEL='#random'
+DEFAULT_BOT_NAME='Conny'
+DEFAULT_BOT_ICON=':robot_face:'
+
+read -p $'Enter your Slack webhook endpoint in the form https://hooks.slack.com/services/XXX/YYY/ZZZZZZ: \n>' webhook_endpoint
+
+read -p $'What channel should I post to? ('$DEFAULT_CHANNEL$') \n>' channel
+channel=${channel:-$DEFAULT_CHANNEL}
+
+read -p $'How do you want to name your bot? ('$DEFAULT_BOT_NAME$')\n>' bot_name
+bot_name=${bot_name:-$DEFAULT_BOT_NAME}
+
+read -p $'What icon should I use? ('$DEFAULT_BOT_ICON$') \n>' bot_icon
+bot_icon=${bot_icon:-$DEFAULT_BOT_ICON}
+
+if [ -n "$webhook_endpoint" ]; then
+  # Use | for sed since webhook_endpoint variable has / in it.
+  sed "s|__WEBHOOK_ENDPOINT__|$webhook_endpoint|" < $TEMPLATE |
+  sed "s|__CHANNEL__|$channel|" |
+  sed "s|__BOT_NAME__|$bot_name|" |
+  sed "s|__BOT_ICON__|$bot_icon|" > $OUTPUT && chmod +x $OUTPUT && echo -e "\nSuccessfully created post-merge webhook.\n"
+else
+  echo -e "\nError: Slack webhook endpoint is required.\n"
+fi
